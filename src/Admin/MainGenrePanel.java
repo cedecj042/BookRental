@@ -1,0 +1,165 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ */
+package Admin;
+
+import Classes.Book;
+import Classes.BookDB;
+import Classes.Genre;
+import Classes.GenreDB;
+import Classes.MainGenre;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+public class MainGenrePanel extends javax.swing.JPanel {
+
+    ArrayList<Genre> genres = new ArrayList<>();
+    ArrayList<BookTabPanel> bookpanels = new ArrayList<>();
+    ArrayList<BookPanel> bookPanels = new ArrayList<>();
+    ArrayList<Book> books = new ArrayList<>();
+    GenreDB gdb;
+    BookDB bdb;
+    AdminExecutable executable;
+    MainGenre maingenre;
+    int num;
+    AdminHome admin;
+    
+    public MainGenrePanel(MainGenre maingenre, AdminExecutable executable, AdminHome admin) {
+        initComponents();
+        gdb = new GenreDB();
+        this.maingenre = maingenre;
+        this.executable = executable;
+        this.admin = admin;
+        this.setName(maingenre.getMainGenreName());
+        genretab.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Component selectedComponent = genretab.getSelectedComponent();
+                if (selectedComponent != null) { // Check if a valid component is selected
+                    Dimension size = selectedComponent.getPreferredSize();
+                    int width = size.width;
+                    int height = size.height;
+                    System.out.println(width + " " + height);
+                    setPanelHeight(width, height + 160, MainGenrePanel.this.admin.getBookBodyPanel());
+                }
+            }
+        });
+        getAllTabPanels(bookpanels);
+        addTabbedPane(bookpanels);
+
+    }
+
+    public MainGenrePanel(AdminExecutable executable, AdminHome admin) {
+        initComponents();
+        this.executable = executable;
+        bdb = new BookDB();
+        this.setName(" " + "Book" + " ");
+        this.books = bdb.getAllBooks();
+        this.admin = admin;
+        genretab.setVisible(false);
+        BookTab.setVisible(true);
+        loadBooks();
+    }
+
+    public void getAllTabPanels(ArrayList<BookTabPanel> booktabpanels) {
+        booktabpanels.clear();
+        genres = gdb.getAllSubGenre(this.maingenre.getMainGenreID());
+        for (Genre genre : genres) {
+            BookTabPanel btp = new BookTabPanel(genre.getGenreName(), genre.getGenreID(), this.admin,this.executable);
+            booktabpanels.add(btp);
+        }
+    }
+
+    public void addTabbedPane(ArrayList<BookTabPanel> booktabpanels) {
+        genretab.removeAll();
+        for (BookTabPanel btp : booktabpanels) {
+            genretab.add(btp);
+        }
+        genretab.repaint();
+        genretab.revalidate();
+    }
+
+    public void setPanelHeight(int width, int height, JPanel panel) {
+        panel.setPreferredSize(new Dimension(width, height));
+        panel.setSize(new Dimension(width, height));
+        panel.setMinimumSize(new Dimension(width, height));
+        panel.setMaximumSize(new Dimension(width, height));
+
+    }
+
+    public void loadBooks() {
+        for (Book book : books) {
+            BookPanel bp = new BookPanel(book,this.admin, this.executable);
+            bookPanels.add(bp);
+        }
+        int num = loadPanels(MainGenrePanel.this.BookTab, bookPanels);
+        this.num = num;
+        setPanelHeight(800, calculatePanelHeight(num) + 40, MainGenrePanel.this.BookTab);
+        setPanelHeight(800, calculatePanelHeight(num) + 40, MainGenrePanel.this.admin.getBookBodyPanel());
+
+        if (books.isEmpty()) {
+            NoBookFound nbf = new NoBookFound();
+            MainGenrePanel.this.BookTab.add(nbf);
+            setPanelHeight(800, 400, MainGenrePanel.this.BookTab);
+            setPanelHeight(800, 400, MainGenrePanel.this.admin.getBookBodyPanel());
+        }
+    }
+
+    public int calculatePanelHeight(int numBooks) {
+        if (numBooks == 0) {
+            return 0;
+        } else {
+            int height = (numBooks / 4) * 290;
+            if (numBooks % 4 != 0) {
+                height += 290;
+            }
+            return height;
+        }
+    }
+
+    public int loadPanels(Container container, ArrayList<? extends JPanel> panels) {
+        int count = 0;
+        container.removeAll();
+        for (JPanel panel : panels) {
+            container.add(panel);
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        genretab = new CustomizedClasses.MaterialTabbed();
+        BookTab = new javax.swing.JPanel();
+
+        setBackground(new java.awt.Color(252, 252, 252));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        genretab.setBackground(new java.awt.Color(252, 252, 252));
+        genretab.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
+        genretab.setFont(new java.awt.Font("Roboto", 0, 14)); // NOI18N
+        add(genretab, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, -1));
+
+        BookTab.setBackground(new java.awt.Color(252, 252, 252));
+        add(BookTab, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 15, 810, -1));
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel BookTab;
+    private CustomizedClasses.MaterialTabbed genretab;
+    // End of variables declaration//GEN-END:variables
+}
