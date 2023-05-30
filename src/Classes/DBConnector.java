@@ -16,7 +16,7 @@ public class DBConnector {
 
     String urlConn = "jdbc:mysql://localhost:3306/bookrental";
     String userConn = "root";
-    String passConn = "Kraken3451%";
+    String passConn = "";
 
     public Connection sqlConn;
 
